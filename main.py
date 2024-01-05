@@ -11,7 +11,11 @@ def downloadVideo(link):
     # Let the user (me) read the printed line before filling the console with status updates
     time.sleep(1)
     # Start downloading the video
-    subprocess.run(['yt-dlp','--output', '~/Videos/%(title)s.%(ext)s', link])
+    """All of the below commands work, but they all seem to max out at 720p video quality"""
+    subprocess.run(['yt-dlp','--ffmpeg-location','C:/FFmpeg/bin/ffmpeg.exe','-S res:1080','-o~/Videos/%(title)s.%(ext)s', link])
+    #subprocess.run(['yt-dlp','-f mp4','-o~/Videos/%(title)s.%(ext)s', link])
+    #subprocess.run(['yt-dlp','--ffmpeg-location','C:/FFmpeg/bin/ffmpeg.exe','-x','--audio-format','mp3','-o~/Videos/%(title)s.%(ext)s', link])
+    """"""
     # Give the user (again, me) time to process a succesful or failed download
     time.sleep(0.5)
 
