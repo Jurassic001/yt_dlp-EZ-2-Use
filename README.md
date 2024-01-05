@@ -9,4 +9,5 @@ I made this program because I wanted the minimize the brainpower required to dow
 #### Dependencies:
 pyperclip (Python package) <br/>
 keyboard (Python package) <br/>
+subprocess (Python package) <br/>
 yt_dlp (Video downloader)

@@ -2,33 +2,82 @@ import subprocess
 import pyperclip
 import keyboard as kb
 import time
+import os
+
+clear = lambda: os.system('cls')
+dlPhase = 1
+isVideo = True
+
+def targFolder():
+    if isVideo: return 'Videos'
+    else: return 'Music'
+
+def fileExt(formatCode: int):
+    """
+    Format codes: 0 - terminal format, 1 - display format, 2 - display opposite format
+    """
+    ext = ['mp4','mp3']
+    if isVideo and ext[0] == 'mp3': ext.reverse()
+    elif not isVideo and ext[0] == 'mp4': ext.reverse()
+    if not formatCode: return '-f ' + ext[0]
+    return ext[formatCode - 1]
 
 def downloadVideo(link):
     # Print the name of the to-be downloaded video in a more readable format
     print("")
-    subprocess.run(['yt-dlp', '-ODownloading: "%(title)s" to your Videos folder', link])
+    subprocess.run(['yt-dlp', '-ODownloading: "%(title)s" to your' + targFolder() + 'folder', link])
     print("")
     # Let the user (me) read the printed line before filling the console with status updates
     time.sleep(1)
     # Start downloading the video
     """All of the below commands work, but they all seem to max out at 720p video quality"""
-    subprocess.run(['yt-dlp','--ffmpeg-location','C:/FFmpeg/bin/ffmpeg.exe','-S res:1080','-o~/Videos/%(title)s.%(ext)s', link])
-    #subprocess.run(['yt-dlp','-f mp4','-o~/Videos/%(title)s.%(ext)s', link])
-    #subprocess.run(['yt-dlp','--ffmpeg-location','C:/FFmpeg/bin/ffmpeg.exe','-x','--audio-format','mp3','-o~/Videos/%(title)s.%(ext)s', link])
+    # subprocess.run(['yt-dlp','--ffmpeg-location','C:/FFmpeg/bin/ffmpeg.exe','-S res:1080','-o~/Videos/%(title)s.%(ext)s', link])
+
+    subprocess.run(['yt-dlp', fileExt(0),'-o~/' + targFolder() + '/%(title)s.%(ext)s', link])
+
+    # subprocess.run(['yt-dlp','-f mp4','-o~/Videos/%(title)s.%(ext)s', link])
+    # subprocess.run(['yt-dlp','--ffmpeg-location','C:/FFmpeg/bin/ffmpeg.exe','-x','--audio-format','mp3','-o~/Videos/%(title)s.%(ext)s', link])
     """"""
     # Give the user (again, me) time to process a succesful or failed download
     time.sleep(0.5)
 
-# Loop to check the clipboard's content and start the download
-while True:
-    # Capture the current content on the clipboard
+def configDownload(link):
+    global isVideo
+    dlPhase = 2
+    while dlPhase == 2:
+        clear()
+        subprocess.run(['yt-dlp', '-OSelected video: "%(title)s"', link])
+        print("")
+        print("Downloading as an " + fileExt(1))
+        print("Press M to switch to " + fileExt(2))
+        print("")
+        print("Press Enter to start the download")
+        print("Press Backspace to select another video")
+        while True:
+            if kb.is_pressed("enter"): downloadVideo(link)
+            elif kb.is_pressed("backspace"): dlPhase = 1
+            elif kb.is_pressed("m"):
+                isVideo = not isVideo
+                break
+
+while dlPhase == 1:
+    # Print instructions and wait for user input
+    clear()
+    print("Copy video URL and press Enter to start the download")
+    kb.wait("Enter")
     url = pyperclip.paste()
-    # If the content on the clipboard looks like a URL then start downloading
+    # Look for a valid URL
     if url.__contains__("http://") or url.__contains__("https://"):
-        downloadVideo(url)
-        # Once the download is finished break out of the loop
-        break
-    # If the content of the clipboard doesn't look like a URL then wait a little bit and check again. 
-    time.sleep(1)
-    # Make sure to tell the user (me) what's happening.
-    print("Cannot identify valid URL. Checking again...")
+        configDownload(url)
+    else:
+        # Warn the user if a URL isn't detected and give them the option to abandon/continue the download.
+        print("")
+        print("Valid URL not found. Do you want to continue? (Y/N)")
+        time.sleep(0.5)
+        while True:
+            if kb.is_pressed("y") or kb.is_pressed("enter"): 
+                configDownload(url)
+            elif kb.is_pressed("n") or kb.is_pressed('backspace'): 
+                print("Download abandoned")
+                time.sleep(1)
+                break
