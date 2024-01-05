@@ -1,4 +1,5 @@
 import subprocess
+from threading import Thread
 import pyperclip
 import keyboard as kb
 import time
@@ -22,6 +23,15 @@ def fileExt(formatCode: int):
     if not formatCode: return '-f ' + ext[0]
     return ext[formatCode - 1]
 
+def processURL():
+    for i in range(3):
+        processingMsg = "Processing the URL"
+        for i in range(3):
+            clear()
+            processingMsg = processingMsg + "."
+            print(processingMsg)
+            time.sleep(0.5)
+
 def downloadVideo(link):
     # Print the name of the to-be downloaded video in a more readable format
     print("")
@@ -44,22 +54,28 @@ def downloadVideo(link):
 def configDownload(link):
     global isVideo
     dlPhase = 2
+    processing.start()
+    videoName = subprocess.check_output(['yt-dlp', '-OSelected video: %(title)s', link], text=True, timeout=5)
+    processing.join()
     while dlPhase == 2:
         clear()
-        subprocess.run(['yt-dlp', '-OSelected video: "%(title)s"', link])
-        print("")
+        print(videoName)
         print("Downloading as an " + fileExt(1))
         print("Press M to switch to " + fileExt(2))
         print("")
         print("Press Enter to start the download")
         print("Press Backspace to select another video")
+        time.sleep(0.5)
         while True:
             if kb.is_pressed("enter"): downloadVideo(link)
-            elif kb.is_pressed("backspace"): dlPhase = 1
+            elif kb.is_pressed("backspace"): 
+                dlPhase = 1
+                break
             elif kb.is_pressed("m"):
                 isVideo = not isVideo
                 break
 
+processing = Thread(target=processURL)
 while dlPhase == 1:
     # Print instructions and wait for user input
     clear()

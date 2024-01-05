@@ -10,4 +10,5 @@ I made this program because I wanted the minimize the brainpower required to dow
 pyperclip (Python package) <br/>
 keyboard (Python package) <br/>
 subprocess (Python package) <br/>
+threading (Python package) <br/>
 yt_dlp (Video downloader)
