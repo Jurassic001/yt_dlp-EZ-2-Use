@@ -23,7 +23,10 @@ def fileExt(formatCode: int):
     return ext[formatCode]
 
 def processURL():
-    for i in range(3):
+    # Little processing graphic while we fetch the video title
+    processingMsg = "Processing the URL"
+    print(processingMsg)
+    for i in range(2):
         processingMsg = "Processing the URL"
         for i in range(3):
             clear()
@@ -32,37 +35,42 @@ def processURL():
             time.sleep(0.5)
 
 def downloadVideo(link, vidName):
-    # Print the name of the to-be downloaded video in a more readable format
+    # Print the name of the to-be downloaded video and it's destination
     clear()
     print("Downloading: " + vidName + " to your " + targFolder() + " folder")
     print("")
-    # Let the user (me) read the printed line before filling the console with status updates
+    # Let the user read the printed line before filling the console with status updates
     time.sleep(1)
     # Start downloading the video
     if isVideo:
-        subprocess.run(['yt-dlp', '-f "bv*[vcodec^=avc]+ba[ext=m4a]/b[ext=mp4]/b"', '-o~/Videos/%(title)s.%(ext)s', link])
+        output = subprocess.run(['yt-dlp', '-f bv*[vcodec^=avc]+ba[ext=m4a]/b[ext=mp4]/b', '-o~/Videos/%(title)s.%(ext)s', link])
     else:
-        subprocess.run(['yt-dlp','--ffmpeg-location','C:/FFmpeg/bin/ffmpeg.exe','-x','--audio-format','mp3','-o~/Music/%(title)s.%(ext)s', link])
-    # Give the user time to process a succesful or failed download
-    time.sleep(0.5)
+        output = subprocess.run(['yt-dlp','--ffmpeg-location','C:/FFmpeg/bin/ffmpeg.exe','-x','--audio-format','mp3','-o~/Music/%(title)s.%(ext)s', link])
+    # Make sure the user sees the successful/failed download status before closing the console.
+    print("")
+    print("Press Enter to exit the program")
+    kb.wait("Enter")
+    exit()
 
 def configDownload(link):
+    # Here the user can see the video title, choose to download as an mp4 or mp3, and continue or go back
     global isVideo
     dlPhase = 2
     processing.start()
-    videoName = subprocess.check_output(['yt-dlp', '-O%(title)s', link], text=True, timeout=5)
+    videoName = (subprocess.check_output(['yt-dlp', '-O"%(title)s"', link], text=True, timeout=5)).strip()
     processing.join()
     while dlPhase == 2:
         clear()
         print("Selected video: " + videoName)
-        print("Downloading as an " + fileExt(1))
-        print("Press M to switch to " + fileExt(2))
+        print("Downloading as an " + fileExt(0))
+        print("Press M to switch to " + fileExt(1))
         print("")
         print("Press Enter to start the download")
         print("Press Backspace to select another video")
         time.sleep(0.5)
         while True:
-            if kb.is_pressed("enter"): downloadVideo(link, videoName)
+            if kb.is_pressed("enter"): 
+                downloadVideo(link, videoName)
             elif kb.is_pressed("backspace"): 
                 dlPhase = 1
                 break
@@ -74,8 +82,14 @@ processing = Thread(target=processURL)
 while dlPhase == 1:
     # Print instructions and wait for user input
     clear()
-    print("Copy video URL and press Enter to start the download")
-    kb.wait("Enter")
+    print("Copy video URL and press Enter to start the download or Backspace to close the program")
+    time.sleep(0.5)
+    while True:
+        if kb.is_pressed("Enter"):
+            break
+        elif kb.is_pressed("Backspace"):
+            exit()
+        time.sleep(0.05)
     url = pyperclip.paste()
     # Look for a valid URL
     if url.__contains__("http://") or url.__contains__("https://"):
