@@ -9,21 +9,32 @@ clear = lambda: os.system('cls')
 dlPhase = 1
 isVideo = True
 
-def targFolder():
+def targFolder() -> str:
+    """ Returns the target folder as a string, based on whether you're downloading a .mp4 or a .mp3 file
+
+    Returns:
+        str: _description_
+    """
     if isVideo: return 'Videos'
     else: return 'Music'
 
-def fileExt(formatCode: int):
-    """
-    Format codes: 0 - display format, 1 - display opposite format
+def fileExt(formatCode: int) -> str:
+    """ Returns either the active or inactive download format as a string, based on input.
+
+    Args:
+        formatCode (int): Format codes: 0 - display current format, 1 - display opposite format
+
+    Returns:
+        str: The download format (mp4 or mp3)
     """
     ext = ['mp4','mp3']
     if isVideo and ext[0] == 'mp3': ext.reverse()
     elif not isVideo and ext[0] == 'mp4': ext.reverse()
     return ext[formatCode]
 
-def processURL():
-    # Little processing graphic while we fetch the video title
+def processURL() -> None:
+    """ Prints a little processing graphic while we fetch the video title
+    """
     processingMsg = "Processing the URL"
     print(processingMsg)
     for i in range(2):
@@ -34,7 +45,13 @@ def processURL():
             print(processingMsg)
             time.sleep(0.5)
 
-def downloadVideo(link, vidName):
+def downloadVideo(link: str, vidName: str) -> None:
+    """ Download the target video
+
+    Args:
+        link (str): The URL of the media that you want to download
+        vidName (str): The name of the media that you want to download
+    """
     # Print the name of the to-be downloaded video and it's destination
     clear()
     print("Downloading: " + vidName + " to your " + targFolder() + " folder")
@@ -52,8 +69,12 @@ def downloadVideo(link, vidName):
     kb.wait("Enter")
     exit()
 
-def configDownload(link):
-    # Here the user can see the video title, choose to download as an mp4 or mp3, and continue or go back
+def configDownload(link: str) -> None:
+    """ Here the user can see the video title, choose to download as an mp4 or mp3, and continue or go back
+
+    Args:
+        link (str): The URL of the media that you want to download
+    """
     global isVideo
     dlPhase = 2
     processing.start()
@@ -69,9 +90,9 @@ def configDownload(link):
         print("Press Backspace to select another video")
         time.sleep(0.5)
         while True:
-            if kb.is_pressed("enter"): 
+            if kb.is_pressed("enter"):
                 downloadVideo(link, videoName)
-            elif kb.is_pressed("backspace"): 
+            elif kb.is_pressed("backspace"):
                 dlPhase = 1
                 break
             elif kb.is_pressed("m"):
@@ -100,9 +121,9 @@ while dlPhase == 1:
         print("Valid URL not found. Do you want to continue? (Y/N)")
         time.sleep(0.5)
         while True:
-            if kb.is_pressed("y") or kb.is_pressed("enter"): 
+            if kb.is_pressed("y") or kb.is_pressed("enter"):
                 configDownload(url)
-            elif kb.is_pressed("n") or kb.is_pressed('backspace'): 
+            elif kb.is_pressed("n") or kb.is_pressed('backspace'):
                 print("Download abandoned")
                 time.sleep(1)
                 break
