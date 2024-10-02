@@ -1,0 +1,22 @@
+# .vscode folder
+.vscode/
+
+# IntelliJ IDEA/PyCharm folders
+.idea/
+
+# python cache files
+__pycache__/
+*.pyc
+
+# python virtual environment for development
+.venv/
+
+# pyinstaller files
+pyinstaller/
+dist/
+build/
+*.spec
+
+# unused executables
+bin/ffplay.exe
+bin/ffprobe.exe

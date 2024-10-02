@@ -1,129 +1,125 @@
-import subprocess
-from threading import Thread
-import pyperclip
-import keyboard as kb
-import time
 import os
+import subprocess
+import sys
+import time
 
-clear = lambda: os.system('cls')
-dlPhase = 1
-isVideo = True
+import keyboard as kb
+import pyperclip
 
-def targFolder() -> str:
-    """ Returns the target folder as a string, based on whether you're downloading a .mp4 or a .mp3 file
 
-    Returns:
-        str: _description_
-    """
-    if isVideo: return 'Videos'
-    else: return 'Music'
+class simple_ytdl:
+    def __init__(self) -> None:
+        self.EXT_DICT: dict[bool, str] = {
+            True: "mp4",
+            False: "mp3",
+        }  # Dictionary of file extensions that correspond to the value of isVideo
 
-def fileExt(formatCode: int) -> str:
-    """ Returns either the active or inactive download format as a string, based on input.
+        self.ERROR_MSG: dict[type[Exception], str] = {
+            subprocess.TimeoutExpired: "Video search timed out.",
+            subprocess.CalledProcessError: "Invalid URL or the video cannot be found.",
+        }  # Dictionary of error messages that correspond to the exception
 
-    Args:
-        formatCode (int): Format codes: 0 - display current format, 1 - display opposite format
+        self.YTDL_PATH: str = os.path.join(os.path.dirname(__file__), "bin/yt-dlp.exe")  # Path to the yt-dlp executable
+        self.FFMPEG_PATH: str = os.path.join(os.path.dirname(__file__), "bin/ffmpeg.exe")  # Path to the ffmpeg executable
 
-    Returns:
-        str: The download format (mp4 or mp3)
-    """
-    ext = ['mp4','mp3']
-    if isVideo and ext[0] == 'mp3': ext.reverse()
-    elif not isVideo and ext[0] == 'mp4': ext.reverse()
-    return ext[formatCode]
+        self.clear = lambda: os.system("cls")  # Clear the console
+        self.isVideo: bool = True  # Download format: True - mp4, False - mp3
 
-def processURL() -> None:
-    """ Prints a little processing graphic while we fetch the video title
-    """
-    processingMsg = "Processing the URL"
-    print(processingMsg)
-    for i in range(2):
-        processingMsg = "Processing the URL"
-        for i in range(3):
-            clear()
-            processingMsg = processingMsg + "."
-            print(processingMsg)
+    def downloadVideo(self, link: str, vidName: str) -> None:
+        """Download the target video
+
+        Args:
+            link (str): The URL of the media that you want to download
+            vidName (str): The name of the media that you want to download
+        """
+        # Print the name of the to-be downloaded video and it's destination
+        self.clear()
+        targ_folder = "Videos" if self.isVideo else "Music"
+        print(f"Downloading: {vidName} to your {targ_folder} folder\n")
+        # Let the user read the printed line before filling the console with status updates
+        time.sleep(1)
+        # Start downloading the video
+        if self.isVideo:
+            subprocess.run(
+                [
+                    f"{self.YTDL_PATH}",
+                    "-f bv*[vcodec^=avc]+ba[ext=m4a]/b[ext=mp4]/b",
+                    "-o~/Videos/%(title)s.%(ext)s",
+                    link,
+                ]
+            )
+        else:
+            subprocess.run(
+                [
+                    f"{self.YTDL_PATH}",
+                    "--ffmpeg-location",
+                    f"{self.FFMPEG_PATH}",
+                    "-x",
+                    "--audio-format",
+                    "mp3",
+                    "-o~/Music/%(title)s.%(ext)s",
+                    link,
+                ]
+            )
+        # Make sure the user sees the successful/failed download status before closing the console.
+        print("\nPress Enter to exit the program")
+        kb.wait("Enter")
+        sys.exit()
+
+    def configDownload(self, link: str) -> None:
+        """Here the user can see the video title, choose to download as an mp4 or mp3, and continue or go back
+
+        Args:
+            link (str): The URL of the media that you want to download
+        """
+        self.clear()
+        print("Processing the URL...\n")
+        try:
+            videoName = (subprocess.check_output([f"{self.YTDL_PATH}", '-O"%(title)s"', link], text=True, timeout=10)).strip()
+        except Exception as e:
+            err_msg = self.ERROR_MSG.get(type(e), "An unknown error occurred.")
+            print(f"\n{err_msg} Press Enter to try again.")
+            kb.wait("enter")
+            return
+        while True:
+            self.clear()
+            print(f"Selected video: {videoName}")
+            print(f"Downloading as an {self.EXT_DICT[self.isVideo]}")
+            print(f"Press M to switch to {self.EXT_DICT[not self.isVideo]}\n")
+            print("Press Enter to start the download")
+            print("Press Backspace to select another video")
             time.sleep(0.5)
+            while True:
+                if kb.is_pressed("enter"):
+                    self.downloadVideo(link, videoName)
+                elif kb.is_pressed("m"):
+                    self.isVideo = not self.isVideo
+                    break
+                elif kb.is_pressed("backspace"):
+                    return
 
-def downloadVideo(link: str, vidName: str) -> None:
-    """ Download the target video
-
-    Args:
-        link (str): The URL of the media that you want to download
-        vidName (str): The name of the media that you want to download
-    """
-    # Print the name of the to-be downloaded video and it's destination
-    clear()
-    print("Downloading: " + vidName + " to your " + targFolder() + " folder")
-    print("")
-    # Let the user read the printed line before filling the console with status updates
-    time.sleep(1)
-    # Start downloading the video
-    if isVideo:
-        output = subprocess.run(['yt-dlp', '-f bv*[vcodec^=avc]+ba[ext=m4a]/b[ext=mp4]/b', '-o~/Videos/%(title)s.%(ext)s', link])
-    else:
-        output = subprocess.run(['yt-dlp','--ffmpeg-location','C:/FFmpeg/bin/ffmpeg.exe','-x','--audio-format','mp3','-o~/Music/%(title)s.%(ext)s', link])
-    # Make sure the user sees the successful/failed download status before closing the console.
-    print("")
-    print("Press Enter to exit the program")
-    kb.wait("Enter")
-    exit()
-
-def configDownload(link: str) -> None:
-    """ Here the user can see the video title, choose to download as an mp4 or mp3, and continue or go back
-
-    Args:
-        link (str): The URL of the media that you want to download
-    """
-    global isVideo
-    dlPhase = 2
-    processing.start()
-    videoName = (subprocess.check_output(['yt-dlp', '-O"%(title)s"', link], text=True, timeout=5)).strip()
-    processing.join()
-    while dlPhase == 2:
-        clear()
-        print("Selected video: " + videoName)
-        print("Downloading as an " + fileExt(0))
-        print("Press M to switch to " + fileExt(1))
-        print("")
-        print("Press Enter to start the download")
-        print("Press Backspace to select another video")
-        time.sleep(0.5)
+    def main(self) -> None:
         while True:
-            if kb.is_pressed("enter"):
-                downloadVideo(link, videoName)
-            elif kb.is_pressed("backspace"):
-                dlPhase = 1
-                break
-            elif kb.is_pressed("m"):
-                isVideo = not isVideo
-                break
+            # Print instructions and wait for user input
+            self.clear()
+            print("Press Enter once you've copied the URL")
+            kb.wait("Enter")
+            url = pyperclip.paste()
+            # Look for a valid URL
+            if url.startswith("http"):
+                self.configDownload(url)
+            else:
+                # Warn the user if a URL isn't detected and give them the option to abandon/continue the download.
+                print("\nValid URL not found. Do you want to continue? (Yes/Y/Enter or No/N/Backspace)")
+                time.sleep(0.5)
+                while True:
+                    if kb.is_pressed("y") or kb.is_pressed("enter"):
+                        self.configDownload(url)
+                        break
+                    elif kb.is_pressed("n") or kb.is_pressed("backspace"):
+                        break
 
-processing = Thread(target=processURL)
-while dlPhase == 1:
-    # Print instructions and wait for user input
-    clear()
-    print("Copy video URL and press Enter to start the download or Backspace to close the program")
-    time.sleep(0.5)
-    while True:
-        if kb.is_pressed("Enter"):
-            break
-        elif kb.is_pressed("Backspace"):
-            exit()
-        time.sleep(0.05)
-    url = pyperclip.paste()
-    # Look for a valid URL
-    if url.__contains__("http://") or url.__contains__("https://"):
-        configDownload(url)
-    else:
-        # Warn the user if a URL isn't detected and give them the option to abandon/continue the download.
-        print("")
-        print("Valid URL not found. Do you want to continue? (Y/N)")
-        time.sleep(0.5)
-        while True:
-            if kb.is_pressed("y") or kb.is_pressed("enter"):
-                configDownload(url)
-            elif kb.is_pressed("n") or kb.is_pressed('backspace'):
-                print("Download abandoned")
-                time.sleep(1)
-                break
+
+if __name__ == "__main__":
+    download = simple_ytdl()
+    download.main()
