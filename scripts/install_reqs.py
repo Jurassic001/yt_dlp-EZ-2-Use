@@ -4,15 +4,12 @@ import argparse
 import os
 import subprocess
 import sys
-from pathlib import Path
 
 DEFAULT_DIR: str = os.path.join(os.path.dirname(os.path.dirname(__file__)))
 
 # set up color codes
 RED: str = "\033[0;31m"
-LIGHTRED: str = "\033[1;31m"
 GREEN: str = "\033[0;32m"
-LIGHTGREEN: str = "\033[1;32m"
 CYAN: str = "\033[0;36m"
 NC: str = "\033[0m"  # No color
 
@@ -39,10 +36,7 @@ def print_with_sidebars(text: str = "", color_code: str = NC) -> None:
 
 
 # region main method
-def main(directory: str, strict: bool) -> None:
-    # define the parent directory path, which is used to represent the location of each requirements.txt file relative to the specified directory
-    PARENT_PATH = Path(directory).resolve().parent
-
+def main(strict: bool) -> None:
     # make sure pip and wheel are up-to-date
     print_with_sidebars("Pre-execution checks", CYAN)
     subprocess.run(
@@ -60,27 +54,32 @@ def main(directory: str, strict: bool) -> None:
         print_with_sidebars("Not inside a docker container/virtual environment, exiting", RED)
         sys.exit(1)
 
-    # Install requirements.txt recursively
-    for filepath in Path(directory).glob("**/requirements*.txt"):
-        # don't install any requirements.txt files that may be in the venv
-        if ".venv" in str(filepath):
-            continue
+    # Install requirements.txt
+    print_with_sidebars("Installing requirements", CYAN)
+    subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "-r",
+            os.path.join(DEFAULT_DIR, "requirements.txt"),
+        ],
+        check=strict,
+    )
 
-        local_path = f"{filepath.relative_to(PARENT_PATH)}"
-
-        print_with_sidebars(local_path, CYAN)
-        subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "pip",
-                "install",
-                "-r",
-                str(filepath.absolute()),
-            ],
-            check=strict,
-        )
-    print_with_sidebars("Requirement installation successful", GREEN)
+    print_with_sidebars("Setting up git hooks", CYAN)
+    # Setup pre-commit hooks
+    subprocess.run(
+        [sys.executable, "-m", "pre_commit", "install"],
+        check=strict,
+    )
+    # Setup Git LFS
+    subprocess.run(
+        ["git", "lfs", "install"],
+        check=strict,
+    )
+    print_with_sidebars("Requirement installation/setup successful", GREEN)
     sys.exit(0)
 
 
@@ -88,21 +87,12 @@ def main(directory: str, strict: bool) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--directory",
-        "-d",
-        type=str,
-        default=DEFAULT_DIR,
-        help=f"Directory to walk recursively. Defaults to the parent directory ({DEFAULT_DIR})",
-    )
-    parser.add_argument(
         "--strict",
         "-s",
         action="store_true",
-        default=False,
+        default=True,
         help="Fail if ANY requirements could not installed",
     )
 
     args = parser.parse_args()
-    args.directory = os.path.abspath(args.directory)
-
-    main(args.directory, args.strict)
+    main(args.strict)
