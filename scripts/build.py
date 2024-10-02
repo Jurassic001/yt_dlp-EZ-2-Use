@@ -1,11 +1,21 @@
+import argparse
 import os
+import shutil
 import subprocess
 
 WORKING_DIR: str = os.path.join(os.path.dirname(os.path.dirname(__file__)))
 
 
-def build() -> None:
+def build(clean: bool, simple: bool) -> None:
     """Builds the project using pyinstaller"""
+    if clean:
+        shutil.rmtree(os.path.join(WORKING_DIR, "pyinstaller"), ignore_errors=True)
+
+    if simple:
+        executable_name = "simple_ytdl"
+    else:
+        executable_name = f"simple_ytdl.{subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], text=True).strip()}"
+
     subprocess.run(
         [
             "pyinstaller",
@@ -21,7 +31,7 @@ def build() -> None:
             "--specpath",
             "./pyinstaller",
             "--name",
-            f"simple_ytdl.{subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], text=True).strip()}",
+            executable_name,
             "main.py",
         ],
         cwd=WORKING_DIR,
@@ -29,4 +39,21 @@ def build() -> None:
 
 
 if __name__ == "__main__":
-    build()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--clean",
+        "-c",
+        action="store_true",
+        default=True,
+        help="Remove the previous build files",
+    )
+    parser.add_argument(
+        "--simple",
+        "-s",
+        action="store_true",
+        default=False,
+        help="Build the executable with a simple name, instead of the git hash",
+    )
+
+    args = parser.parse_args()
+    build(args.clean, args.simple)
