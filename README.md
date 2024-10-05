@@ -23,18 +23,27 @@ That's it! You can now run the program and easily download videos at high qualit
 ### Encountered an issue?
 Make a post on the issues tab, detailing what happened, what you were doing when it happened, and what the output of the program was when the issue occurred.
 
-## Misc
-### Contribution guide
+## Contribution guide
 If you want to contribute to this project, please feel free to do so! You can make use of the [development scripts](scripts) to help you get started. They're pretty self-explanatory, but if you have any questions, feel free to ask. For the most part, development should be conducted in a virtual environment.
 
 When contributing, make sure to fork the repository and create a pull request with your changes. I'll review it and likely merge it when I get the chance.
 
-### Project ambition
+## Project ambition
 I made this program because I wanted the minimize the brainpower required to download a video. To be honest I don't spend a lot of time downloading videos, so I tend to forget the syntax associated with yt-dlp. This program allows me to quickly and easily download high-quality Youtube videos and audios without any hassle.
 
 I wanted to extend this simplicity to other users, so I redesigned this program to be able to run as an executable file. This way, all someone has to do is download the program and run it, without having to worry about dependencies or syntax.
 
-### Future plans
+## Future plans
 * Add a GUI to the program
 * Add more download location options
 * Add tests
+
+## Legal
+### Disclaimer
+This program is not affiliated with Youtube, yt-dlp, or FFmpeg. It is an independent project that utilizes these tools to download media. The program is not intended for illegal use, and I am not responsible for any misuse of this program.
+
+### License
+You may view the repository's license [here](LICENSE).
+
+### Credits
+Executable icon created by [**kliwir art** on Flaticon](https://www.flaticon.com/authors/kliwir-art)

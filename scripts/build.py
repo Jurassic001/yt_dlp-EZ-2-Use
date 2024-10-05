@@ -32,10 +32,13 @@ def build(clean: bool, simple: bool) -> None:
             "./pyinstaller",
             "--name",
             executable_name,
+            "--icon",
+            f"{WORKING_DIR}/assets/ytdl.ico",
             "main.py",
         ],
         cwd=WORKING_DIR,
     )
+    # If you change the icon file, you might have to restart file explorer for the icon to update
 
 
 if __name__ == "__main__":
@@ -44,7 +47,7 @@ if __name__ == "__main__":
         "--clean",
         "-c",
         action="store_true",
-        default=True,
+        default=False,
         help="Remove the previous build files",
     )
     parser.add_argument(
