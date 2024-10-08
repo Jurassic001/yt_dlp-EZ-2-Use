@@ -5,7 +5,7 @@ import os
 import subprocess
 import sys
 
-DEFAULT_DIR: str = os.path.join(os.path.dirname(os.path.dirname(__file__)))
+ROOT_DIR: str = os.path.join(os.path.dirname(os.path.dirname(__file__)))
 
 # set up color codes
 RED: str = "\033[0;31m"
@@ -58,26 +58,27 @@ def main(strict: bool) -> None:
     print_with_sidebars("Installing requirements", CYAN)
     subprocess.run(
         [
-            sys.executable,
-            "-m",
             "pip",
             "install",
             "-r",
-            os.path.join(DEFAULT_DIR, "requirements.txt"),
+            "requirements.txt",
         ],
         check=strict,
+        cwd=ROOT_DIR,
     )
 
     print_with_sidebars("Setting up git hooks", CYAN)
     # Setup pre-commit hooks
     subprocess.run(
-        [sys.executable, "-m", "pre_commit", "install"],
+        ["pre-commit", "install"],
         check=strict,
+        cwd=ROOT_DIR,
     )
     # Setup Git LFS
     subprocess.run(
         ["git", "lfs", "install"],
         check=strict,
+        cwd=ROOT_DIR,
     )
     print_with_sidebars("Requirement installation/setup successful", GREEN)
     sys.exit(0)
