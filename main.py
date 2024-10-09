@@ -8,7 +8,7 @@ import pyperclip
 
 
 class simple_ytdl:
-    def __init__(self, skip: bool, skip_val: str) -> None:
+    def __init__(self, skip: bool, skip_val: str, arg_url: str) -> None:
         self.EXT_DICT: dict[bool, str] = {
             True: "mp4",
             False: "mp3",
@@ -34,6 +34,9 @@ class simple_ytdl:
         else:  # Unsupported OS
             print("Unsupported OS")
             sys.exit(1)
+
+        if arg_url != "none":
+            pyperclip.copy(arg_url)
 
     def input(self, prompt: str = "") -> str:
         """Prompt the user for input, or skip the prompt if the relevant argument is applied
@@ -156,7 +159,13 @@ if __name__ == "__main__":
         default="",
         help="Value to return when skipping prompts",
     )
+    parser.add_argument(
+        "--url",
+        type=str,
+        default="none",
+        help="URL of the video to download",
+    )
     args = parser.parse_args()
 
-    download = simple_ytdl(args.skip, args.skip_val)
+    download = simple_ytdl(args.skip, args.skip_val, args.url)
     download.main()
