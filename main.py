@@ -20,10 +20,20 @@ class simple_ytdl:
         }  # Dictionary of error messages that correspond to the exception
 
         self.clear = lambda: os.system("cls" if os.name == "nt" else "clear")  # Clear the console
-        self.isVideo: bool = True  # Download format: True - mp4, False - mp3
 
+        self.isVideo: bool = True  # Download format: True - mp4, False - mp3
         self.skip_prompts: bool = skip  # Skip input prompts
         self.prompt_skip_val: str = skip_val  # Value to return when skipping prompts
+
+        if sys.platform == "win32":
+            pyperclip.set_clipboard("windows")
+        elif sys.platform == "linux":
+            pyperclip.set_clipboard("xclip")
+        elif sys.platform == "darwin":
+            pyperclip.set_clipboard("pbobjc")
+        else:  # Unsupported OS
+            print("Unsupported OS")
+            sys.exit(1)
 
     def input(self, prompt: str = "") -> str:
         """Prompt the user for input, or skip the prompt if the relevant argument is applied
@@ -115,23 +125,16 @@ class simple_ytdl:
 
     def main(self) -> None:
         while True:
-            # Print instructions and wait for user input
+            # clear terminal and get clipboard content
             self.clear()
-            if sys.platform == "win32":
-                url = pyperclip.paste()
-            elif sys.platform == "linux":
-                pyperclip.set_clipboard("xclip")
-            elif sys.platform == "darwin":
-                pyperclip.set_clipboard("pbobjc")
-            else:  # Unsupported OS
-                print("Unsupported OS")
-                sys.exit()
-            # Look for a valid URL
+            print("Checking user clipboard for a URL...", end="\n\n")
+            url = pyperclip.paste()
+            # valid URL check
             if url.startswith("http"):
                 self.configDownload(url)
             else:
-                # Warn the user if a URL isn't detected and give them the option to continue/retry/abandon the download.
-                valid_fail = self.input("\nValid URL not found. Do you want to continue? (y/n) ")
+                # Warn the user if a URL isn't detected and give them the option to continue anyways/retry the download.
+                valid_fail = self.input("Valid URL not found. Do you want to continue? (y/n) ")
                 time.sleep(0.5)
                 if valid_fail.startswith("n"):
                     continue
