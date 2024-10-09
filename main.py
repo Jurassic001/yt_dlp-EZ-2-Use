@@ -19,9 +19,6 @@ class simple_ytdl:
             subprocess.CalledProcessError: "Invalid URL or the video cannot be found.",
         }  # Dictionary of error messages that correspond to the exception
 
-        self.YTDL_PATH: str = os.path.join(os.path.dirname(__file__), "bin/yt-dlp.exe")  # Path to the yt-dlp executable
-        self.FFMPEG_PATH: str = os.path.join(os.path.dirname(__file__), "bin/ffmpeg.exe")  # Path to the ffmpeg executable
-
         self.clear = lambda: os.system("cls")  # Clear the console
         self.isVideo: bool = True  # Download format: True - mp4, False - mp3
 
@@ -42,7 +39,7 @@ class simple_ytdl:
         if self.isVideo:
             subprocess.run(
                 [
-                    f"{self.YTDL_PATH}",
+                    "yt-dlp",
                     "-f bv*[vcodec^=avc]+ba[ext=m4a]/b[ext=mp4]/b",
                     "-o~/Videos/%(title)s.%(ext)s",
                     link,
@@ -51,9 +48,7 @@ class simple_ytdl:
         else:
             subprocess.run(
                 [
-                    f"{self.YTDL_PATH}",
-                    "--ffmpeg-location",
-                    f"{self.FFMPEG_PATH}",
+                    "yt-dlp",
                     "-x",
                     "--audio-format",
                     "mp3",
@@ -75,7 +70,7 @@ class simple_ytdl:
         self.clear()
         print("Processing the URL...\n")
         try:
-            videoName = (subprocess.check_output([f"{self.YTDL_PATH}", '-O"%(title)s"', link], text=True, timeout=10)).strip()
+            videoName = (subprocess.check_output(["yt-dlp", '-O"%(title)s"', link], text=True, timeout=10)).strip()
         except Exception as e:
             err_msg = self.ERROR_MSG.get(type(e), "An unknown error occurred.")
             print(f"\n{err_msg} Press Enter to try again.")

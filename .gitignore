@@ -17,6 +17,5 @@ dist/
 build/
 *.spec
 
-# unused executables
-bin/ffplay.exe
-bin/ffprobe.exe
+# unused executables dir
+bin/**

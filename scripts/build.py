@@ -14,16 +14,12 @@ def build(clean: bool, simple: bool) -> None:
     if simple:
         executable_name = "simple_ytdl"
     else:
-        executable_name = f"simple_ytdl.{subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], text=True).strip()}"
+        executable_name = f"simple_ytdl.{subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], text=True, cwd=WORKING_DIR).strip()}"
 
     subprocess.run(
         [
             "pyinstaller",
             "--onefile",
-            "--add-binary",
-            f"{WORKING_DIR}/bin/yt-dlp.exe;bin",
-            "--add-binary",
-            f"{WORKING_DIR}/bin/ffmpeg.exe;bin",
             "--distpath",
             "./pyinstaller/dist",
             "--workpath",
@@ -33,7 +29,7 @@ def build(clean: bool, simple: bool) -> None:
             "--name",
             executable_name,
             "--icon",
-            f"{WORKING_DIR}/assets/ytdl.ico",
+            WORKING_DIR + "/assets/ytdl.ico",
             "main.py",
         ],
         cwd=WORKING_DIR,
