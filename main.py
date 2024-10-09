@@ -40,8 +40,10 @@ class simple_ytdl:
             subprocess.run(
                 [
                     "yt-dlp",
-                    "-f bv*[vcodec^=avc]+ba[ext=m4a]/b[ext=mp4]/b",
-                    "-o~/Videos/%(title)s.%(ext)s",
+                    "--format",
+                    "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/b",
+                    "-o",
+                    os.path.expanduser("~/Videos/%(title)s.%(ext)s"),
                     link,
                 ]
             )
@@ -49,10 +51,13 @@ class simple_ytdl:
             subprocess.run(
                 [
                     "yt-dlp",
-                    "-x",
+                    "--extract-audio",
                     "--audio-format",
                     "mp3",
-                    "-o~/Music/%(title)s.%(ext)s",
+                    "--audio-quality",
+                    "0",
+                    "-o",
+                    os.path.expanduser("~/Music/%(title)s.%(ext)s"),
                     link,
                 ]
             )
@@ -70,7 +75,7 @@ class simple_ytdl:
         self.clear()
         print("Processing the URL...\n")
         try:
-            videoName = (subprocess.check_output(["yt-dlp", '-O"%(title)s"', link], text=True, timeout=10)).strip()
+            videoName = (subprocess.check_output(["yt-dlp", "-O", "%(title)s", link], text=True, timeout=10)).strip()
         except Exception as e:
             err_msg = self.ERROR_MSG.get(type(e), "An unknown error occurred.")
             print(f"\n{err_msg} Press Enter to try again.")
