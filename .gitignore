@@ -18,4 +18,7 @@ build/
 *.spec
 
 # unused executables dir
-bin/**
+bin/
+
+# github workflows will fail because Youtube flags the IP address as a bot
+.github/workflows/
