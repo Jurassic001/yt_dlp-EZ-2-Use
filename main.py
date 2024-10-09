@@ -22,6 +22,11 @@ class simple_ytdl:
         self.clear = lambda: os.system("cls")  # Clear the console
         self.isVideo: bool = True  # Download format: True - mp4, False - mp3
 
+        if sys.platform.startswith("linux"):
+            self.paste = lambda: subprocess.check_output("xclip -selection clipboard -o", shell=True).decode().strip()
+        else:
+            self.paste = pyperclip.paste
+
     def downloadVideo(self, link: str, vidName: str) -> None:
         """Download the target video
 
@@ -104,7 +109,15 @@ class simple_ytdl:
             self.clear()
             print("Press Enter once you've copied the URL")
             kb.wait("Enter")
-            url = pyperclip.paste()
+            if sys.platform == "win32":
+                url = pyperclip.paste()
+            elif sys.platform == "linux":
+                pyperclip.set_clipboard("xclip")
+            elif sys.platform == "darwin":
+                pyperclip.set_clipboard("pbobjc")
+            else:  # Unsupported OS
+                print("Unsupported OS")
+                sys.exit()
             # Look for a valid URL
             if url.startswith("http"):
                 self.configDownload(url)
