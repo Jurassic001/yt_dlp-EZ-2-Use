@@ -17,6 +17,8 @@ dist/
 build/
 *.spec
 
-# unused executables
-bin/ffplay.exe
-bin/ffprobe.exe
+# unused executables dir
+bin/
+
+# github workflows will fail because Youtube flags the IP address as a bot
+.github/workflows/

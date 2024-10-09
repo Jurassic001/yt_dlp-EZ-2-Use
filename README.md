@@ -1,8 +1,6 @@
 # simple_ytdl
 [![Code style](https://img.shields.io/badge/code_style-black-black?style=for-the-badge)](https://github.com/psf/black)
 [![Commit activity](https://img.shields.io/github/commit-activity/t/Jurassic001/simple_ytdl?style=for-the-badge&logo=github)](https://github.com/Jurassic001/simple_ytdl/activity)
-<!-- Future testing results badge
-[![GitHub branch check runs](https://img.shields.io/github/check-runs/Jurassic001/simple_ytdl/main?style=for-the-badge)](https://github.com/Jurassic001/simple_ytdl/actions) -->
 
 ### An easy-to-use, text-based program for downloading Youtube videos at high fidelity, utilizing [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [FFmpeg](https://www.ffmpeg.org).
 
@@ -36,7 +34,7 @@ I wanted to extend this simplicity to other users, so I redesigned this program 
 ## Future plans
 * Add a GUI to the program
 * Add more download location options
-* Add tests
+* Add workflow tests (need to circumvent Youtube bot checks)
 
 ## Legal
 ### Disclaimer
