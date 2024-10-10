@@ -42,6 +42,3 @@ This program is not affiliated with Youtube, yt-dlp, or FFmpeg. It is an indepen
 
 ### License
 You may view the repository's license [here](LICENSE).
-
-### Credits
-Executable icon created by [**kliwir art** on Flaticon](https://www.flaticon.com/authors/kliwir-art)
