@@ -29,7 +29,7 @@ def build(clean: bool, simple: bool) -> None:
             "--name",
             executable_name,
             "--icon",
-            WORKING_DIR + "/assets/ytdl.ico",
+            os.path.join(WORKING_DIR, "assets/executable icon.ico"),
             "main.py",
         ],
         cwd=WORKING_DIR,
